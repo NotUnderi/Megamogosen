@@ -71,7 +71,7 @@ class Hero:
             self.stepIndex = 0
 
     def draw(self, win):
-        if self.stepIndex >= 9:
+        if self.stepIndex >= 4:
             self.stepIndex = 0
         if self.face_left:
             win.blit(self.left[self.stepIndex], (self.x, self.y))
@@ -135,10 +135,6 @@ class Enemy:
                 self.x += self.velx
                 self.face_right = True
                 self.face_left = False
-       # elif self.x + self.velx < self.end:
-       #     self.x -= self.velx
-       #     self.face_right = False
-       #     self.face_left = True
             else:
                 self.velx = self.velx*-1
                 self.face_right = False
@@ -155,7 +151,7 @@ class Enemy:
 
     def draw(self, win):
         self.move()
-        if self.stepIndex >= 9:
+        if self.stepIndex >= 4:
             self.stepIndex = 0
         if self.face_left:
             win.blit(self.left[self.stepIndex], (self.x, self.y))
