@@ -1,5 +1,7 @@
 import pygame
 import os
+import random
+
 
 # sets working directory to python file folder to fix errors when running game through vscode
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -14,6 +16,9 @@ win_width = 1000
 win_height = 500
 
 lastshot = 0 # for shooting cooldown
+lastspawn = 0 #for spawning enemies once in a while
+enemies = [] #support for multiple enemies
+
 
 pygame.display.set_caption("Game name")
 
@@ -23,11 +28,11 @@ bullet_img = pygame.transform.scale(pygame.image.load("new_bullet.png"), (10, 10
 
 
 def draw_game():
-    global stepIndex
     win.fill((0,0,0))
     win.blit(bg, (0, 0))
     player.draw(win)
-    enemy.draw(win)
+    for e in enemies:
+        e.draw(win)
     for bullet in player.bullets:
         bullet.draw_bullet()
     pygame.time.delay(30)
@@ -44,7 +49,6 @@ class Hero:
      right[picIndex-1] = pygame.image.load("R" + str(picIndex)+ ".png")
 
     def __init__(self, x, y):
-        #walk
         self.x = x
         self.y = y
         self.velx = 10      
@@ -52,9 +56,9 @@ class Hero:
         self.face_right = True
         self.face_left = False
         self.stepIndex = 0
-        #jump
+
         self.jump = False
-        #bullet
+
         self.bullets = []
 
 
@@ -162,6 +166,7 @@ class Enemy:
 
 
 
+
 class Bullet:
     def __init__(self, x, y, direction):
         self.x = x + 15
@@ -178,16 +183,27 @@ class Bullet:
         if self.direction == -1:
             self.x -= 35        
 
+
+
 player = Hero(250, 385)
-enemy = Enemy(350, 385, 700)
+
+
 
 run = True
 while run:
 
+    print(pygame.time.get_ticks())
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+   
+    if lastspawn+2500 < pygame.time.get_ticks():
+        lastspawn = pygame.time.get_ticks()
+        enemies.append(Enemy(random.randint(0,500),385,random.randint(200,800)))
+
+
+    
 
     #input
     userInput = pygame.key.get_pressed()
