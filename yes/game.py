@@ -20,13 +20,6 @@ pygame.display.set_caption("First game")
 standing = pygame.image.load("standing.png")
 bullet_img = pygame.transform.scale(pygame.image.load("new_bullet.png"), (10, 10))
 
-left = [None]*10
-for picIndex in range(1, 10):
-    left[picIndex-1] = pygame.image.load("L" + str(picIndex)+ ".png")
-
-right = [None]*10
-for picIndex in range(1, 10):
-    right[picIndex-1] = pygame.image.load("R" + str(picIndex)+ ".png")
 
 
 def draw_game():
@@ -34,6 +27,7 @@ def draw_game():
     win.fill((0,0,0))
     win.blit(bg, (0, 0))
     player.draw(win)
+    enemy.draw(win)
     for bullet in player.bullets:
         bullet.draw_bullet()
     pygame.time.delay(30)
@@ -41,12 +35,20 @@ def draw_game():
 
 
 class Hero:
+    left = [None]*10
+    for picIndex in range(1, 10):
+      left[picIndex-1] = pygame.image.load("L" + str(picIndex)+ ".png")
+
+    right = [None]*10
+    for picIndex in range(1, 10):
+     right[picIndex-1] = pygame.image.load("R" + str(picIndex)+ ".png")
+
     def __init__(self, x, y):
         #walk
         self.x = x
         self.y = y
-        self.velx = 10
-        self.vely = 10
+        self.velx = 10      
+        self.vely = 10     
         self.face_right = True
         self.face_left = False
         self.stepIndex = 0
@@ -56,7 +58,7 @@ class Hero:
         self.bullets = []
 
 
-    def move_hero(self, userInput):
+    def move(self, userInput):
         if userInput[pygame.K_d] and self.x <= win_width - 62:
             self.x += self.velx
             self.face_right = True
@@ -72,17 +74,17 @@ class Hero:
         if self.stepIndex >= 9:
             self.stepIndex = 0
         if self.face_left:
-            win.blit(left[self.stepIndex], (self.x, self.y))
+            win.blit(self.left[self.stepIndex], (self.x, self.y))
             self.stepIndex += 1
         if self.face_right:
-            win.blit(right[self.stepIndex], (self.x, self.y))
+            win.blit(self.right[self.stepIndex], (self.x, self.y))
             self.stepIndex += 1
 
     def jump_motion(self, userInput):
         if userInput[pygame.K_w] and self.jump is False:
             self.jump = True
         if self.jump:
-            self.y -= self.vely*2
+            self.y -= self.vely*1.5 # jump height and speed
             self.vely -= 1
         if self.vely < -10:
             self.jump = False
@@ -107,6 +109,63 @@ class Hero:
         for bullet in self.bullets:
             bullet.move()
 
+class Enemy:
+    left = [None]*10
+    for picIndex in range(1, 10):
+          left[picIndex-1] = pygame.image.load("L" + str(picIndex)+ ".png")
+
+    right = [None]*10
+    for picIndex in range(1, 10):
+        right[picIndex-1] = pygame.image.load("R" + str(picIndex)+ ".png")
+    def __init__(self, x, y, end):
+        self.x = x
+        self.y = y
+        self.velx = 5      
+        self.vely = 10 
+        self.face_right = True
+        self.face_left = False
+        self.stepIndex = 0
+        self.end = end
+        self.path = [self.x,self.end]
+
+
+    def move(self):
+        if self.velx > 0:
+            if self.x + self.velx < self.end:
+                self.x += self.velx
+                self.face_right = True
+                self.face_left = False
+       # elif self.x + self.velx < self.end:
+       #     self.x -= self.velx
+       #     self.face_right = False
+       #     self.face_left = True
+            else:
+                self.velx = self.velx*-1
+                self.face_right = False
+                self.face_left = True
+                self.stepIndex = 0
+        else:
+            if self.x - self.velx > self.path[0]:
+                self.x += self.velx
+            else:
+                self.velx = self.velx *-1
+                self.face_right = False
+                self.face_left = True
+                self.stepIndex = 0
+
+    def draw(self, win):
+        self.move()
+        if self.stepIndex >= 9:
+            self.stepIndex = 0
+        if self.face_left:
+            win.blit(self.left[self.stepIndex], (self.x, self.y))
+            self.stepIndex += 1
+        if self.face_right:
+            win.blit(self.right[self.stepIndex], (self.x, self.y))
+            self.stepIndex += 1
+
+
+
 class Bullet:
     def __init__(self, x, y, direction):
         self.x = x + 15
@@ -124,6 +183,7 @@ class Bullet:
             self.x -= 35        
 
 player = Hero(250, 385)
+enemy = Enemy(350, 385, 700)
 
 run = True
 while run:
@@ -140,7 +200,7 @@ while run:
     player.shoot()
 
     #movement
-    player.move_hero(userInput)
+    player.move(userInput)
     player.jump_motion(userInput)
 
     #draw game
