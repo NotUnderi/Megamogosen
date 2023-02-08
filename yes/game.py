@@ -1,7 +1,7 @@
 import pygame
 import os
 
-# sets working directory to python file folder to fix errors when running game through vscode
+## sets working directory to python file folder to fix errors when running game through vscode
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 pygame.init()
