@@ -15,7 +15,7 @@ win_height = 500
 
 lastshot = 0 # for shooting cooldown
 
-pygame.display.set_caption("First game")
+pygame.display.set_caption("Game name")
 
 standing = pygame.image.load("standing.png")
 bullet_img = pygame.transform.scale(pygame.image.load("new_bullet.png"), (10, 10))
