@@ -1,4 +1,8 @@
 import pygame
+import os
+
+# sets working directory to python file folder to fix errors when running game through vscode
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 pygame.init()
 
@@ -9,6 +13,8 @@ bg = pygame.transform.scale(bg_img, (1000, 500))
 win_width = 1000
 win_height = 500
 
+lastshot = 0 # for shooting cooldown
+
 pygame.display.set_caption("First game")
 
 standing = pygame.image.load("standing.png")
@@ -17,12 +23,10 @@ bullet_img = pygame.transform.scale(pygame.image.load("new_bullet.png"), (10, 10
 left = [None]*10
 for picIndex in range(1, 10):
     left[picIndex-1] = pygame.image.load("L" + str(picIndex)+ ".png")
-    picIndex+=1
 
 right = [None]*10
 for picIndex in range(1, 10):
     right[picIndex-1] = pygame.image.load("R" + str(picIndex)+ ".png")
-    picIndex+=1
 
 
 def draw_game():
@@ -75,10 +79,10 @@ class Hero:
             self.stepIndex += 1
 
     def jump_motion(self, userInput):
-        if userInput[pygame.K_SPACE] and self.jump is False:
+        if userInput[pygame.K_w] and self.jump is False:
             self.jump = True
         if self.jump:
-            self.y -= self.vely*4
+            self.y -= self.vely*2
             self.vely -= 1
         if self.vely < -10:
             self.jump = False
@@ -92,7 +96,12 @@ class Hero:
 
 
     def shoot(self):
-        if userInput[pygame.K_f]:
+        global lastshot
+        cdamount = 200
+
+        if userInput[pygame.K_SPACE] and lastshot+cdamount < pygame.time.get_ticks():  #shoots only if cdamount (milliseconds) has passed
+            lastshot = pygame.time.get_ticks() #update time
+
             bullet = Bullet(self.x, self.y, self.direction())
             self.bullets.append(bullet)
         for bullet in self.bullets:
@@ -110,9 +119,9 @@ class Bullet:
 
     def move(self):
         if self.direction == 1:
-            self.x += 15
+            self.x += 35        #bullet speed
         if self.direction == -1:
-            self.x -= 15
+            self.x -= 35        
 
 player = Hero(250, 385)
 
