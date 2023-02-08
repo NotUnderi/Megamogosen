@@ -112,11 +112,11 @@ class Hero:
 class Enemy:
     left = [None]*10
     for picIndex in range(1, 10):
-          left[picIndex-1] = pygame.image.load("L" + str(picIndex)+ ".png")
+          left[picIndex-1] = pygame.image.load("L" + str(picIndex)+ "E.png")
 
     right = [None]*10
     for picIndex in range(1, 10):
-        right[picIndex-1] = pygame.image.load("R" + str(picIndex)+ ".png")
+        right[picIndex-1] = pygame.image.load("R" + str(picIndex)+ "E.png")
     def __init__(self, x, y, end):
         self.x = x
         self.y = y
