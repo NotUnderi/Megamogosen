@@ -15,9 +15,16 @@ bg = pygame.transform.scale(bg_img, (1000, 500))
 win_width = 1000
 win_height = 500
 
+
+#Global variables for tracking stuff
 lastshot = 0 # for shooting cooldown
 lastspawn = 0 #for spawning enemies once in a while
 enemies = [] #support for multiple enemies
+
+#Initializing music
+pygame.mixer.init()
+pygame.mixer.music.load('Retrogame_music_1.mp3')
+pygame.mixer.music.play()
 
 
 pygame.display.set_caption("Game name")
