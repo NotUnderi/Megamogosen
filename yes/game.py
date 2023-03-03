@@ -139,8 +139,8 @@ class Hero:
 
 class Obstacle:
     box_image = pygame.image.load("box.png")
-    def __init__(self,x,y):
-        self.rect = pygame.Rect(x,y,50,50)
+    def __init__(self,x,y,width,height):
+        self.rect = pygame.Rect(x,y,width,height)
         self.x = x
         self.y = y
         self.tolerance = 5
@@ -268,7 +268,7 @@ player = Hero(250, groundlevel)
 enemies.append(Enemy(random.randint(0,500),groundlevel,random.randint(200,800)))        #always append to enemies list when creating new instances
 enemies.append(Enemy(random.randint(0,500),groundlevel,random.randint(200,800)))        #in Enemy(x,y,z), x is x pos, y is y pos and z is the lenght of the enemy's travel
 enemies.append(Enemy(random.randint(0,500),groundlevel,random.randint(200,800)))
-obstacles.append(Obstacle(450,groundlevel))
+obstacles.append(Obstacle(450,groundlevel,50,50))
 enemies.append(Enemy(200,groundlevel,0))
 
 
@@ -295,7 +295,6 @@ while run:
     
     #movement
     player.move(userInput)
-    #player.jump_motion(userInput)
     #draw game
     draw_game()
 
