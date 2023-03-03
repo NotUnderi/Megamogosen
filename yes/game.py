@@ -56,13 +56,13 @@ def draw_game():
 
 
 class Hero:
-    left = [None]*4
+    left = []
     for picIndex in range(1, 5):
-      left[picIndex-1] = pygame.image.load("L" + str(picIndex)+ ".png")
+        left.append(pygame.image.load("L" + str(picIndex)+ ".png"))
 
-    right = [None]*4
+    right = []
     for picIndex in range(1, 5):
-     right[picIndex-1] = pygame.image.load("R" + str(picIndex)+ ".png")
+        right.append(pygame.image.load("R" + str(picIndex)+ ".png"))
 
     def __init__(self, x, y):
         self.rect = pygame.Rect(x,y,25,50)
@@ -163,13 +163,13 @@ class Obstacle:
        
 
 class Enemy:
-    left = [None]*10
+    left = []
     for picIndex in range(1, 10):
-          left[picIndex-1] = pygame.image.load("L" + str(picIndex)+ "E.png")
+        left.append(pygame.image.load("L" + str(picIndex)+ "E.png"))
 
-    right = [None]*10
+    right = []
     for picIndex in range(1, 10):
-        right[picIndex-1] = pygame.image.load("R" + str(picIndex)+ "E.png")
+        right.append(pygame.image.load("R" + str(picIndex)+ "E.png"))
     def __init__(self, x, y, end):
         self.rect = pygame.Rect(x,y+15,25,50)
         self.x = x
