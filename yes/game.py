@@ -41,10 +41,10 @@ def draw_game():
     win.fill((0,0,0))
     win.blit(bg, (0, 0))
     player.draw(win)
-    #pygame.draw.rect(win,255,player.rect)
+    pygame.draw.rect(win,50,player.rect)
     for e in enemies:
         e.draw(win)
-        #pygame.draw.rect(win,255,e.rect)            #comment draw.rects out, only for debugging hitboxes
+        pygame.draw.rect(win,255,e.rect)            #comment draw.rects out, only for debugging hitboxes
     for bullet in player.bullets:
         bullet.draw_bullet()
         #pygame.draw.rect(win,255,bullet.rect)
@@ -56,12 +56,12 @@ def draw_game():
 
 
 class Hero:
-    left = [None]*10
-    for picIndex in range(1, 10):
+    left = [None]*4
+    for picIndex in range(1, 5):
       left[picIndex-1] = pygame.image.load("L" + str(picIndex)+ ".png")
 
-    right = [None]*10
-    for picIndex in range(1, 10):
+    right = [None]*4
+    for picIndex in range(1, 5):
      right[picIndex-1] = pygame.image.load("R" + str(picIndex)+ ".png")
 
     def __init__(self, x, y):
@@ -127,7 +127,7 @@ class Hero:
 
     def shoot(self):
         global lastshot
-        cdamount = 200
+        cdamount = 250
 
         if userInput[pygame.K_SPACE] and lastshot+cdamount < pygame.time.get_ticks():  #shoots only if cdamount (milliseconds) has passed
             lastshot = pygame.time.get_ticks() #update time
@@ -204,7 +204,7 @@ class Enemy:
                 self.face_right = False
                 self.face_left = True
                 self.stepIndex = 0
-        self.rect.x = self.x+25
+        self.rect.x = self.x+20
         
 
     def draw(self, win):
@@ -224,9 +224,9 @@ class Enemy:
             if abs(player.rect.left-self.rect.right)<7:
                 player.x+= player.velx
 
-        if abs(player.rect.bottom - self.rect.top) < 8 and self.rect.left<player.rect.centerx and self.rect.right>player.rect.centerx:  #check if player is above enemy and between its hitbox
-            player.jump = False
-            if player.rect.centerx > self.rect.left or player.rect.centerx < self.rect.right:   # make player fall off the side
+        if abs(player.rect.bottom - self.rect.top) < 5 and self.rect.left-10<player.rect.centerx and self.rect.right+10>player.rect.centerx: #if player is above obstacle and players center is between obstacles left and right side
+            player.jump = False #prevents from falling through
+            if player.rect.right < self.rect.centerx or player.rect.left > self.rect.centerx:   #make player fall off the side
                 player.vely = 0
                 player.jump = True
         
