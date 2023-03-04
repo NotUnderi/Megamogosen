@@ -15,6 +15,10 @@ bg = pygame.transform.scale(bg_img, (1000, 500))
 win_width = 1000
 win_height = 500
 
+fonts = pygame.font.get_fonts()
+font1 = pygame.font.SysFont(None,48)
+
+
 
 #Global variables for tracking stuff
 lastshot = 0 # for shooting cooldown
@@ -41,10 +45,10 @@ def draw_game():
     win.fill((0,0,0))
     win.blit(bg, (0, 0))
     player.draw(win)
-    pygame.draw.rect(win,50,player.rect)
+    #pygame.draw.rect(win,50,player.rect)
     for e in enemies:
         e.draw(win)
-        pygame.draw.rect(win,255,e.rect)            #comment draw.rects out, only for debugging hitboxes
+        #pygame.draw.rect(win,255,e.rect)            #comment draw.rects out, only for debugging hitboxes
     for bullet in player.bullets:
         bullet.draw_bullet()
         #pygame.draw.rect(win,255,bullet.rect)
@@ -76,6 +80,7 @@ class Hero:
         self.jump = False
         self.tolerance = 16
         self.bullets = []
+        self.ammo = 999
 
 
     def move(self, userInput):
@@ -116,6 +121,8 @@ class Hero:
             win.blit(self.right[self.stepIndex], (self.x, self.y))
             self.stepIndex += 1
         if self.y > groundlevel: self.y=groundlevel
+        ammotext = font1.render(str(self.ammo), True, 0)
+        win.blit(ammotext,(0,0))
         
 
     def direction(self):
@@ -127,20 +134,22 @@ class Hero:
 
     def shoot(self):
         global lastshot
-        cdamount = 250
+        cdamount = 200
 
-        if userInput[pygame.K_SPACE] and lastshot+cdamount < pygame.time.get_ticks():  #shoots only if cdamount (milliseconds) has passed
+
+        if userInput[pygame.K_SPACE] and lastshot+cdamount < pygame.time.get_ticks() and self.ammo > 0:  #shoots only if cdamount (milliseconds) has passed
             lastshot = pygame.time.get_ticks() #update time
-
+            self.ammo -= 1
             bullet = Bullet(self.x, self.y, self.direction())
             self.bullets.append(bullet)
         for bullet in self.bullets:
             bullet.move()
 
 class Obstacle:
-    box_image = pygame.image.load("box.png")
     def __init__(self,x,y,width,height):
         self.rect = pygame.Rect(x,y,width,height)
+        
+        self. box_image = pygame.transform.scale(pygame.image.load("box.png"), (width, height))
         self.x = x
         self.y = y
         self.tolerance = 5
@@ -231,7 +240,9 @@ class Enemy:
                 player.jump = True
         
 
-    def death(self): pygame.mixer.Sound.play(death_sound)
+    def death(self): 
+        pygame.mixer.Sound.play(death_sound)
+        player.ammo += 2
 
 
 
@@ -255,7 +266,8 @@ class Bullet:
         if self.direction == -1:
             self.x -= 35   
         self.rect.x = self.x
-
+        if self.rect.collidelist(obstacles)!=-1:
+            del player.bullets[obstacles[self.rect.collidelist(obstacles)].rect.collidelist(player.bullets)]
         if self.rect.collidelist(enemies)!=-1:
             i = self.rect.collidelist(enemies)      #save collided enemy index
             enemies[i].death()                      #call death sound           
@@ -275,26 +287,20 @@ enemies.append(Enemy(200,groundlevel,0))
 run = True
 while run: 
 
+    #print(player.ammo )
     #print(pygame.time.get_ticks())
+    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
    
-    #if lastspawn+1500 < pygame.time.get_ticks():                   #for spawning enemies every 1.5 second
-    #    lastspawn = pygame.time.get_ticks()
-    #    enemies.append(Enemy(random.randint(0,500),groundlevel,random.randint(200,800)))
+    if lastspawn+1500 < pygame.time.get_ticks():                   #for spawning enemies every 1.5 second
+        lastspawn = pygame.time.get_ticks()
+        enemies.append(Enemy(random.randint(0,500),groundlevel,random.randint(200,800)))
 
 
-    
-    
-    #input
     userInput = pygame.key.get_pressed()
-
-    #shoot
     player.shoot()
-    
-    #movement
     player.move(userInput)
-    #draw game
     draw_game()
 
