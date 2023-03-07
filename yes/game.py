@@ -45,7 +45,7 @@ def draw_game():
     win.fill((0,0,0))
     win.blit(bg, (0, 0))
     player.draw(win)
-    #pygame.draw.rect(win,(0,255,0),player.rect)
+    pygame.draw.rect(win,(0,255,0),player.rect)
     for e in enemies:
         e.draw(win)
         #pygame.draw.rect(win,(255,0,0),e.rect)            #comment draw.rects out, only for debugging hitboxes
@@ -241,6 +241,8 @@ class Enemy:
 
     def death(self): 
         pygame.mixer.Sound.play(death_sound)
+        self.y = 10000
+        self.x = -50000             #questionable practice
         player.ammo += 2
 
 class Bullet:
@@ -268,7 +270,6 @@ class Bullet:
         if self.rect.collidelist(enemies)!=-1 and self.visible:
             i = self.rect.collidelist(enemies)      #save collided enemy index
             enemies[i].death()                      #call death sound           
-            del enemies[i]                 #get a better solution for this        #deletes enemy instance that collided
             self.visible = False
             
 
