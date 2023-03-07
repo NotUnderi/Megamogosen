@@ -170,7 +170,6 @@ class Obstacle:
                 player.vely = 0
                 player.jump = True
        
-
 class Enemy:
     left = []
     for picIndex in range(1, 10):
@@ -244,20 +243,18 @@ class Enemy:
         pygame.mixer.Sound.play(death_sound)
         player.ammo += 2
 
-
-
-
-
 class Bullet:
     def __init__(self, x, y, direction):
         self.x = x + 15
         self.y = y + 25
         self.direction = direction
         self.rect = pygame.Rect(x+15,y+25,10,10)
+        self.visible = True
 
 
     def draw_bullet(self):
-        win.blit(bullet_img, (self.x, self.y))
+        if self.visible:
+            win.blit(bullet_img, (self.x, self.y))
 
     def move(self):
         if self.direction == 1:
@@ -266,13 +263,13 @@ class Bullet:
         if self.direction == -1:
             self.x -= 35   
         self.rect.x = self.x
-        if self.rect.collidelist(obstacles)!=-1:
-            del player.bullets[obstacles[self.rect.collidelist(obstacles)].rect.collidelist(player.bullets)]
-        if self.rect.collidelist(enemies)!=-1:
+        if self.rect.collidelist(obstacles)!=-1 and self.visible:
+            self.visible = False
+        if self.rect.collidelist(enemies)!=-1 and self.visible:
             i = self.rect.collidelist(enemies)      #save collided enemy index
             enemies[i].death()                      #call death sound           
-            del player.bullets[enemies[i].rect.collidelist(player.bullets)]    #deletes the bullet instance that collided with the enemy
-            del enemies[i]                                                      #deletes enemy instance that collided
+            del enemies[i]                 #get a better solution for this        #deletes enemy instance that collided
+            self.visible = False
             
 
 
