@@ -29,9 +29,9 @@ groundlevel = 390
 
 #Initializing sounds
 pygame.mixer.init()
-pygame.mixer.music.load('Retrogame_music_1.mp3')
+pygame.mixer.music.load('Retrogame_music_1.ogg')
 pygame.mixer.music.play()
-death_sound = pygame.mixer.Sound("death.mp3")
+death_sound = pygame.mixer.Sound("death.ogg")
 
 
 pygame.display.set_caption("Game name")
@@ -45,15 +45,15 @@ def draw_game():
     win.fill((0,0,0))
     win.blit(bg, (0, 0))
     player.draw(win)
-    #pygame.draw.rect(win,50,player.rect)
+    #pygame.draw.rect(win,(0,255,0),player.rect)
     for e in enemies:
         e.draw(win)
-        #pygame.draw.rect(win,255,e.rect)            #comment draw.rects out, only for debugging hitboxes
+        #pygame.draw.rect(win,(255,0,0),e.rect)            #comment draw.rects out, only for debugging hitboxes
     for bullet in player.bullets:
         bullet.draw_bullet()
-        #pygame.draw.rect(win,255,bullet.rect)
+        #pygame.draw.rect(win,(255,0,0),bullet.rect)
     for o in obstacles:
-        #pygame.draw.rect(win,255,o.rect)
+        #pygame.draw.rect(win,(255,0,0),o.rect)
         o.draw(win)
     pygame.time.delay(30)
     pygame.display.update()
@@ -121,7 +121,7 @@ class Hero:
             win.blit(self.right[self.stepIndex], (self.x, self.y))
             self.stepIndex += 1
         if self.y > groundlevel: self.y=groundlevel
-        ammotext = font1.render(str(self.ammo), True, 0)
+        ammotext = font1.render(str(self.ammo), True, (0,0,0))
         win.blit(ammotext,(0,0))
         
 
