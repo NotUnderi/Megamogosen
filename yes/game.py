@@ -80,7 +80,8 @@ class Hero:
         self.jump = False
         self.tolerance = 16
         self.bullets = []
-        self.ammo = 999
+        self.ammo = 25
+        self.points = 0
 
 
     def move(self, userInput):
@@ -121,8 +122,11 @@ class Hero:
             win.blit(self.right[self.stepIndex], (self.x, self.y))
             self.stepIndex += 1
         if self.y > groundlevel: self.y=groundlevel
-        ammotext = font1.render(str(self.ammo), True, (0,0,0))
+        ammotext = font1.render("Ammo: "+str(self.ammo), True, (0,0,0))
         win.blit(ammotext,(0,0))
+        
+        pointtext = font1.render("Points: "+str(self.points), True, (0,0,0))
+        win.blit(pointtext,(0,35))
         
 
     def direction(self):
@@ -243,6 +247,7 @@ class Enemy:
     def death(self): 
         pygame.mixer.Sound.play(death_sound)
         player.ammo += 2
+        player.points += 1
 
 
 
@@ -294,7 +299,7 @@ while run:
         if event.type == pygame.QUIT:
             run = False
    
-    if lastspawn+1500 < pygame.time.get_ticks():                   #for spawning enemies every 1.5 second
+    if lastspawn+2500 < pygame.time.get_ticks():                   #for spawning enemies every 1.5 second
         lastspawn = pygame.time.get_ticks()
         enemies.append(Enemy(random.randint(0,500),groundlevel,random.randint(200,800)))
 
