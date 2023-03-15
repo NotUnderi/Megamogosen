@@ -9,14 +9,15 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 pygame.init()
 
 #Backround and window
-win = pygame.display.set_mode((1000, 500))
-bg_img = pygame.image.load("swamp.png")
-bg = pygame.transform.scale(bg_img, (1000, 500))
 win_width = 1000
 win_height = 500
+win = pygame.display.set_mode((win_width, win_height))
+bg_img = pygame.image.load("swamp.png")
+bg = pygame.transform.scale(bg_img, (win_width, win_height))
 
 fonts = pygame.font.get_fonts()
 font1 = pygame.font.SysFont(None,48)
+font2 = pygame.font.SysFont(None,100)
 
 
 
@@ -32,9 +33,17 @@ winning = True
 #Initializing sounds
 pygame.mixer.init()
 pygame.mixer.music.load('Retrogame_music_1.ogg')
+pygame.mixer.music.set_volume(0.4)
 pygame.mixer.music.play()
-death_sound = pygame.mixer.Sound("death.ogg")
 
+death_sound = pygame.mixer.Sound("UOHu.ogg")
+olkapaa = pygame.mixer.Sound("Ai_vittu_mun_olkapaa.ogg")
+shoot = pygame.mixer.Sound("Ampuskelu.ogg")
+iced = pygame.mixer.Sound("Jaassssa.ogg")
+player_death = pygame.mixer.Sound("Kertaakaa.ogg")
+point = pygame.mixer.Sound("Pisteaani.ogg")
+
+enemyDeathSounds = [olkapaa,death_sound,iced]
 
 pygame.display.set_caption("Game name")
 
@@ -146,14 +155,18 @@ class Hero:
 
     def death(self):
         global winning 
+        pygame.mixer.music.pause()
+        pygame.mixer.Sound.play(player_death)
         winning = False
+        deathtext = font2.render("GAME OVER", True, (255,0,0))
+        win.blit(deathtext,(300,250))
         
     def shoot(self):
         global lastshot
         cdamount = 200
 
-
         if userInput[pygame.K_SPACE] and lastshot+cdamount < pygame.time.get_ticks() and self.ammo > 0:  #shoots only if cdamount (milliseconds) has passed
+            pygame.mixer.Sound.play(shoot)
             lastshot = pygame.time.get_ticks() #update time
             self.ammo -= 1
             bullet = Bullet(self.x, self.y, self.direction())
@@ -259,9 +272,11 @@ class Enemy:
         
 
     def death(self): 
-        pygame.mixer.Sound.play(death_sound)
+        pygame.mixer.Sound.play(random.choice(enemyDeathSounds))
         player.ammo += 2
         player.points += 1
+        if player.points%10 == 0: pygame.mixer.Sound.play(point)
+
 
 
 
@@ -274,6 +289,7 @@ class Bullet:
         self.direction = direction
         self.rect = pygame.Rect(x+15,y+25,10,10)
         self.visible = True
+        
 
 
     def draw_bullet(self):
