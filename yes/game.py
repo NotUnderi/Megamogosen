@@ -23,10 +23,12 @@ font1 = pygame.font.SysFont(None,48)
 #Global variables for tracking stuff
 lastshot = 0 # for shooting cooldown
 lastspawn = 0 #for spawning enemies once in a while
+lastdmg = 0 #for not getting instakilled
 enemies = [] #support for multiple enemies
 obstacles = [] 
 groundlevel = 390
-
+run = True
+winning = True
 #Initializing sounds
 pygame.mixer.init()
 pygame.mixer.music.load('Retrogame_music_1.ogg')
@@ -82,6 +84,7 @@ class Hero:
         self.bullets = []
         self.ammo = 25
         self.points = 0
+        self.health = 100
 
 
     def move(self, userInput):
@@ -123,10 +126,15 @@ class Hero:
             self.stepIndex += 1
         if self.y > groundlevel: self.y=groundlevel
         ammotext = font1.render("Ammo: "+str(self.ammo), True, (0,0,0))
-        win.blit(ammotext,(0,0))
+        win.blit(ammotext,(0,35))
         
         pointtext = font1.render("Points: "+str(self.points), True, (0,0,0))
-        win.blit(pointtext,(0,35))
+        win.blit(pointtext,(0,70))
+
+        healthtext = font1.render("HP: "+str(self.health), True, (255,0,0))
+        win.blit(healthtext,(0,0))
+        if self.health <= 0:
+            self.death()
         
 
     def direction(self):
@@ -136,6 +144,10 @@ class Hero:
             return -1
 
 
+    def death(self):
+        global winning 
+        winning = False
+        
     def shoot(self):
         global lastshot
         cdamount = 200
@@ -152,7 +164,6 @@ class Hero:
 class Obstacle:
     def __init__(self,x,y,width,height):
         self.rect = pygame.Rect(x,y,width,height)
-        
         self. box_image = pygame.transform.scale(pygame.image.load("box.png"), (width, height))
         self.x = x
         self.y = y
@@ -196,9 +207,12 @@ class Enemy:
         self.path = [self.x,self.end]
 
 
+
     def move(self):
-        if self.rect.colliderect(player.rect): #might have future use idk
-           pass
+        global lastdmg
+        if abs(self.rect.centerx-player.rect.centerx) < 30 and abs(self.rect.top - player.rect.bottom)>25 and lastdmg+100 < pygame.time.get_ticks(): 
+           lastdmg = pygame.time.get_ticks() 
+           player.health -= 10
         if self.velx > 0:
             if self.x + self.velx < self.end:
                 self.x += self.velx
@@ -259,53 +273,51 @@ class Bullet:
         self.y = y + 25
         self.direction = direction
         self.rect = pygame.Rect(x+15,y+25,10,10)
+        self.visible = True
 
 
     def draw_bullet(self):
-        win.blit(bullet_img, (self.x, self.y))
+        if self.visible:
+            win.blit(bullet_img, (self.x, self.y))
 
     def move(self):
-        if self.direction == 1:
-            self.x += 35        #bullet speed
-            
-        if self.direction == -1:
-            self.x -= 35   
         self.rect.x = self.x
-        if self.rect.collidelist(obstacles)!=-1:
-            del player.bullets[obstacles[self.rect.collidelist(obstacles)].rect.collidelist(player.bullets)]
-        if self.rect.collidelist(enemies)!=-1:
-            i = self.rect.collidelist(enemies)      #save collided enemy index
-            enemies[i].death()                      #call death sound           
-            del enemies[i]                 #get a better solution for this        #deletes enemy instance that collided
-            self.visible = False
-            
+        obstaclec = self.rect.collidelist(obstacles)
+        enemyc = self.rect.collidelist(enemies)
+        if self.visible:
+            if self.direction == 1:
+                self.x += 35        #bullet speed
+                
+            if self.direction == -1:
+                self.x -= 35   
+            if obstaclec!=-1:
+                self.visible = False
+            if enemyc!=-1:
+                enemies[enemyc].death()                      #call death sound           
+                del enemies[enemyc]                          #deletes enemy instance that collided
+                self.visible = False
+                
 
 
 player = Hero(250, groundlevel)
-enemies.append(Enemy(random.randint(0,500),groundlevel,random.randint(200,800)))        #always append to enemies list when creating new instances
-enemies.append(Enemy(random.randint(0,500),groundlevel,random.randint(200,800)))        #in Enemy(x,y,z), x is x pos, y is y pos and z is the lenght of the enemy's travel
-enemies.append(Enemy(random.randint(0,500),groundlevel,random.randint(200,800)))
+#enemies.append(Enemy(random.randint(0,500),groundlevel,random.randint(200,800)))        #always append to enemies list when creating new instances
+#enemies.append(Enemy(random.randint(0,500),groundlevel,random.randint(200,800)))        #in Enemy(x,y,z), x is x pos, y is y pos and z is the lenght of the enemy's travel
+#enemies.append(Enemy(random.randint(0,500),groundlevel,random.randint(200,800)))
 obstacles.append(Obstacle(450,groundlevel,50,50))
-enemies.append(Enemy(200,groundlevel,0))
+#enemies.append(Enemy(200,groundlevel,0))
 
 
-run = True
 while run: 
 
-    #print(player.ammo )
-    #print(pygame.time.get_ticks())
-    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
-   
-    if lastspawn+2500 < pygame.time.get_ticks():                   #for spawning enemies every 1.5 second
-        lastspawn = pygame.time.get_ticks()
-        enemies.append(Enemy(random.randint(0,500),groundlevel,random.randint(200,800)))
-
-
-    userInput = pygame.key.get_pressed()
-    player.shoot()
-    player.move(userInput)
-    draw_game()
+    if winning:
+        if lastspawn+2500 < pygame.time.get_ticks():                   #for spawning enemies every 1.5 second
+            lastspawn = pygame.time.get_ticks()
+            enemies.append(Enemy(random.randint(0,500),groundlevel,random.randint(200,900)))
+        userInput = pygame.key.get_pressed()
+        player.shoot()
+        player.move(userInput)
+        draw_game()
 
