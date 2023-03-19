@@ -12,7 +12,7 @@ pygame.init()
 win_width = 1000
 win_height = 500
 win = pygame.display.set_mode((win_width, win_height))
-bg_img = pygame.image.load("swamp.png")
+bg_img = pygame.image.load("background.png")
 bg = pygame.transform.scale(bg_img, (win_width, win_height))
 
 fonts = pygame.font.get_fonts()
@@ -72,13 +72,13 @@ def draw_game():
 
 class Hero:
     left = []
-    for picIndex in range(1, 5):
-        left.append(pygame.image.load("L" + str(picIndex)+ ".png"))
-
+    #for picIndex in range(1, 5):
+    #    left.append(pygame.image.load("L" + str(picIndex)+ ".png"))
+    left.append(pygame.image.load("PL1.png"))
     right = []
-    for picIndex in range(1, 5):
-        right.append(pygame.image.load("R" + str(picIndex)+ ".png"))
-
+    #for picIndex in range(1, 5):
+    #    right.append(pygame.image.load("R" + str(picIndex)+ ".png"))
+    right.append(pygame.image.load("PR1.png"))
     def __init__(self, x, y):
         self.rect = pygame.Rect(x,y,25,50)
         self.x = x
@@ -125,19 +125,19 @@ class Hero:
 
 
     def draw(self, win):
-        if self.stepIndex >= 4:
-            self.stepIndex = 0
+        #if self.stepIndex >= 4:
+        #    self.stepIndex = 0
         if self.face_left:
-            win.blit(self.left[self.stepIndex], (self.x, self.y))
-            self.stepIndex += 1
+            win.blit(self.left[0], (self.x+self.left[0].get_width()/2, self.y+self.left[0].get_height()/3))
+        #    self.stepIndex += 1
         if self.face_right:
-            win.blit(self.right[self.stepIndex], (self.x, self.y))
-            self.stepIndex += 1
+            win.blit(self.right[0], (self.x+self.left[0].get_width()/2, self.y+self.left[0].get_height()/3))
+         #   self.stepIndex += 1
         if self.y > groundlevel: self.y=groundlevel
-        ammotext = font1.render("Ammo: "+str(self.ammo), True, (0,0,0))
+        ammotext = font1.render("Ammo: "+str(self.ammo), True, (255,255,255))
         win.blit(ammotext,(0,35))
         
-        pointtext = font1.render("Points: "+str(self.points), True, (0,0,0))
+        pointtext = font1.render("Points: "+str(self.points), True, (255,255,255))
         win.blit(pointtext,(0,70))
 
         healthtext = font1.render("HP: "+str(self.health), True, (255,0,0))
@@ -169,7 +169,7 @@ class Hero:
             pygame.mixer.Sound.play(shoot)
             lastshot = pygame.time.get_ticks() #update time
             self.ammo -= 1
-            bullet = Bullet(self.x, self.y, self.direction())
+            bullet = Bullet(self.x, self.y+10, self.direction())
             self.bullets.append(bullet)
         for bullet in self.bullets:
             bullet.move()
@@ -223,7 +223,7 @@ class Enemy:
 
     def move(self):
         global lastdmg
-        if abs(self.rect.centerx-player.rect.centerx) < 30 and abs(self.rect.top - player.rect.bottom)>25 and lastdmg+100 < pygame.time.get_ticks(): 
+        if abs(self.rect.centerx-player.rect.centerx) < 30 and abs(self.rect.top - player.rect.bottom)>25 and lastdmg+1000 < pygame.time.get_ticks(): 
            lastdmg = pygame.time.get_ticks() 
            player.health -= 10
         if self.velx > 0:
