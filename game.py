@@ -12,7 +12,7 @@ pygame.init()
 win_width = 1000
 win_height = 500
 win = pygame.display.set_mode((win_width, win_height))
-bg_img = pygame.image.load("background.png")
+bg_img = pygame.image.load("./assets/img/background.png")
 bg = pygame.transform.scale(bg_img, (win_width, win_height))
 
 fonts = pygame.font.get_fonts()
@@ -32,23 +32,23 @@ run = True
 winning = True
 #Initializing sounds
 pygame.mixer.init()
-pygame.mixer.music.load('Retrogame_music_1.ogg')
+pygame.mixer.music.load('./assets/audio/Retrogame_music_1.ogg')
 pygame.mixer.music.set_volume(0.4)
 pygame.mixer.music.play()
 
-death_sound = pygame.mixer.Sound("UOHu.ogg")
-olkapaa = pygame.mixer.Sound("Ai_vittu_mun_olkapaa.ogg")
-shoot = pygame.mixer.Sound("Ampuskelu.ogg")
-iced = pygame.mixer.Sound("Jaassssa.ogg")
-player_death = pygame.mixer.Sound("Kertaakaa.ogg")
-point = pygame.mixer.Sound("Pisteaani.ogg")
+death_sound = pygame.mixer.Sound("./assets/audio/UOHu.ogg")
+olkapaa = pygame.mixer.Sound("./assets/audio/Ai_vittu_mun_olkapaa.ogg")
+shoot = pygame.mixer.Sound("./assets/audio/Ampuskelu.ogg")
+iced = pygame.mixer.Sound("./assets/audio/Jaassssa.ogg")
+player_death = pygame.mixer.Sound("./assets/audio/Kertaakaa.ogg")
+point = pygame.mixer.Sound("./assets/audio/Pisteaani.ogg")
 
 enemyDeathSounds = [olkapaa,death_sound,iced]
 
 pygame.display.set_caption("Game name")
 
-standing = pygame.image.load("standing.png") #not used ?
-bullet_img = pygame.transform.scale(pygame.image.load("new_bullet.png"), (10, 10))
+standing = pygame.image.load("./assets/img/standing.png") #not used ?
+bullet_img = pygame.transform.scale(pygame.image.load("./assets/img/new_bullet.png"), (10, 10))
 
 
 
@@ -64,7 +64,7 @@ def draw_game():
         bullet.draw_bullet()
         #pygame.draw.rect(win,(255,0,0),bullet.rect)
     for o in obstacles:
-        #pygame.draw.rect(win,(255,0,0),o.rect)
+        pygame.draw.rect(win,(255,255,255),o.rect)
         o.draw(win)
     pygame.time.delay(30)
     pygame.display.update()
@@ -73,12 +73,12 @@ def draw_game():
 class Hero:
     left = []
     #for picIndex in range(1, 5):
-    #    left.append(pygame.image.load("L" + str(picIndex)+ ".png"))
-    left.append(pygame.image.load("PL1.png"))
+    #    left.append(pygame.image.load("./assets/img/L" + str(picIndex)+ ".png"))
+    left.append(pygame.image.load("./assets/img/PL1.png"))
     right = []
     #for picIndex in range(1, 5):
-    #    right.append(pygame.image.load("R" + str(picIndex)+ ".png"))
-    right.append(pygame.image.load("PR1.png"))
+    #    right.append(pygame.image.load("./assets/img/R" + str(picIndex)+ ".png"))
+    right.append(pygame.image.load("./assets/img/PR1.png"))
     def __init__(self, x, y):
         self.rect = pygame.Rect(x,y,25,50)
         self.x = x
@@ -177,13 +177,12 @@ class Hero:
 class Obstacle:
     def __init__(self,x,y,width,height):
         self.rect = pygame.Rect(x,y,width,height)
-        self. box_image = pygame.transform.scale(pygame.image.load("box.png"), (width, height))
         self.x = x
         self.y = y
         self.tolerance = 5
 
     def draw(self, win):
-        win.blit(self.box_image, (self.x, self.y))
+        #win.blit(self.box_image, (self.x, self.y))
 
         #collision detection
         if self.rect.colliderect(player.rect) and abs(self.rect.top - player.rect.top) < 20:    #if player is colliding and about on the same level
@@ -202,11 +201,11 @@ class Obstacle:
 class Enemy:
     left = []
     for picIndex in range(1, 10):
-        left.append(pygame.image.load("L" + str(picIndex)+ "E.png"))
+        left.append(pygame.image.load("./assets/img/L" + str(picIndex)+ "E.png"))
 
     right = []
     for picIndex in range(1, 10):
-        right.append(pygame.image.load("R" + str(picIndex)+ "E.png"))
+        right.append(pygame.image.load("./assets/img/R" + str(picIndex)+ "E.png"))
     def __init__(self, x, y, end):
         self.rect = pygame.Rect(x,y+15,25,50)
         self.x = x
