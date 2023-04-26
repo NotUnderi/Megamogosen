@@ -45,7 +45,7 @@ point = pygame.mixer.Sound("./assets/audio/Pisteaani.ogg")
 
 enemyDeathSounds = [olkapaa,death_sound,iced]
 
-pygame.display.set_caption("Game name")
+pygame.display.set_caption("Megamogosen")
 
 standing = pygame.image.load("./assets/img/standing.png") #not used ?
 bullet_img = pygame.transform.scale(pygame.image.load("./assets/img/new_bullet.png"), (10, 10))
