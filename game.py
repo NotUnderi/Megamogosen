@@ -15,21 +15,23 @@ win = pygame.display.set_mode((win_width, win_height))
 bg_img = pygame.image.load("./assets/img/background.png")
 bg = pygame.transform.scale(bg_img, (win_width, win_height))
 
-fonts = pygame.font.get_fonts()
-font1 = pygame.font.SysFont(None,48)
-font2 = pygame.font.SysFont(None,100)
 
 
 
-#Global variables for tracking stuff
-lastshot = 0 # for shooting cooldown
-lastspawn = 0 #for spawning enemies once in a while
-lastdmg = 0 #for not getting instakilled
-enemies = [] #support for multiple enemies
+#variables for tracking stuff
+lastshot = 0 
+lastspawn = 0 
+lastdmg = 0 
+enemies = []
 obstacles = [] 
 groundlevel = 390
 run = True
 winning = True
+
+fonts = pygame.font.get_fonts()
+font1 = pygame.font.SysFont(None,48)
+font2 = pygame.font.SysFont(None,100)
+
 
 
 pygame.display.set_caption(" ")
@@ -81,7 +83,6 @@ class Hero:
         self.points = 0
         self.health = 100
 
-
     def move(self, userInput):
         if userInput[pygame.K_d] and self.rect.x <= win_width - 55:
             self.x += self.velx
@@ -108,7 +109,6 @@ class Hero:
     
         self.rect.x = self.x+20    #update rect pos
         self.rect.y = self.y+15
-
 
     def draw(self, win):
         #if self.stepIndex >= 4:
@@ -139,12 +139,14 @@ class Hero:
             return -1
 
 
+
     def death(self):
         global winning 
         pygame.mixer.music.pause()
         winning = False
         deathtext = font2.render("GAME OVER", True, (255,0,0))
         win.blit(deathtext,(300,250))
+
         
     def shoot(self):
         global lastshot
@@ -152,7 +154,6 @@ class Hero:
 
         if userInput[pygame.K_SPACE] and lastshot+cdamount < pygame.time.get_ticks() and self.ammo > 0:  
             lastshot = pygame.time.get_ticks() 
-            self.ammo -= 1
             bullet = Bullet(self.x, self.y+10, self.direction())
             self.bullets.append(bullet)
         for bullet in self.bullets:
@@ -181,7 +182,6 @@ class Obstacle:
                 player.vely = 0
                 player.jump = True
        
-
 class Enemy:
     left = []
     for picIndex in range(1, 10):
@@ -252,11 +252,10 @@ class Enemy:
             if player.rect.right < self.rect.centerx or player.rect.left > self.rect.centerx:   #make player fall off the side
                 player.vely = 0
                 player.jump = True
-                
+
     def death(self): 
         player.ammo += 2
         player.points += 1
-
 
 
 
@@ -289,18 +288,15 @@ class Bullet:
             if obstaclec!=-1:
                 self.visible = False
             if enemyc!=-1:
-                enemies[enemyc].death()                      #call death sound           
+                enemies[enemyc].death() 
                 del enemies[enemyc]                          #deletes enemy instance that collided
                 self.visible = False
                 
 
 
 player = Hero(250, groundlevel)
-#enemies.append(Enemy(random.randint(0,500),groundlevel,random.randint(200,800)))        #always append to enemies list when creating new instances
-#enemies.append(Enemy(random.randint(0,500),groundlevel,random.randint(200,800)))        #in Enemy(x,y,z), x is x pos, y is y pos and z is the lenght of the enemy's travel
-#enemies.append(Enemy(random.randint(0,500),groundlevel,random.randint(200,800)))
 obstacles.append(Obstacle(450,groundlevel,50,50))
-#enemies.append(Enemy(200,groundlevel,0))
+ 
 
 
 while run: 
