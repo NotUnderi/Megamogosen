@@ -252,8 +252,7 @@ class Enemy:
             if player.rect.right < self.rect.centerx or player.rect.left > self.rect.centerx:   #make player fall off the side
                 player.vely = 0
                 player.jump = True
-        
-
+                
     def death(self): 
         player.ammo += 2
         player.points += 1

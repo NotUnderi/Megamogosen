@@ -28,6 +28,11 @@ groundlevel = 390
 run = True
 winning = True
 
+fonts = pygame.font.get_fonts()
+font1 = pygame.font.SysFont(None,48)
+font2 = pygame.font.SysFont(None,100)
+
+
 
 pygame.display.set_caption(" ")
 
@@ -74,8 +79,9 @@ class Hero:
         self.jump = False
         self.tolerance = 16
         self.bullets = []
+        self.ammo = 25
+        self.points = 0
         self.health = 100
-
 
     def move(self, userInput):
         if userInput[pygame.K_d] and self.rect.x <= win_width - 55:
@@ -104,7 +110,6 @@ class Hero:
         self.rect.x = self.x+20    #update rect pos
         self.rect.y = self.y+15
 
-
     def draw(self, win):
         #if self.stepIndex >= 4:
         #    self.stepIndex = 0
@@ -115,7 +120,14 @@ class Hero:
             win.blit(self.right[0], (self.x+self.left[0].get_width()/2, self.y+self.left[0].get_height()/3))
          #   self.stepIndex += 1
         if self.y > groundlevel: self.y=groundlevel
+        ammotext = font1.render("Ammo: "+str(self.ammo), True, (255,255,255))
+        win.blit(ammotext,(0,35))
+        
+        pointtext = font1.render("Points: "+str(self.points), True, (255,255,255))
+        win.blit(pointtext,(0,70))
 
+        healthtext = font1.render("HP: "+str(self.health), True, (255,0,0))
+        win.blit(healthtext,(0,0))
         if self.health <= 0:
             self.death()
         
@@ -129,20 +141,42 @@ class Hero:
 
     def death(self):
         global winning 
-        pygame.mixer.music.pause()
         winning = False
         
     def shoot(self):
         global lastshot
         cdamount = 200
 
-        if userInput[pygame.K_SPACE] and lastshot+cdamount < pygame.time.get_ticks():  
+        if userInput[pygame.K_SPACE] and lastshot+cdamount < pygame.time.get_ticks() and self.ammo > 0:  
             lastshot = pygame.time.get_ticks() 
             bullet = Bullet(self.x, self.y+10, self.direction())
             self.bullets.append(bullet)
         for bullet in self.bullets:
             bullet.move()
 
+class Obstacle:
+    def __init__(self,x,y,width,height):
+        self.rect = pygame.Rect(x,y,width,height)
+        self.x = x
+        self.y = y
+        self.tolerance = 5
+
+    def draw(self, win):
+        #win.blit(self.box_image, (self.x, self.y))
+
+        #collision detection
+        if self.rect.colliderect(player.rect) and abs(self.rect.top - player.rect.top) < 20:    #if player is colliding and about on the same level
+            if abs(player.rect.right - self.rect.left) < 7:     #if players right side is close to obstacles left side, push player to the left
+                player.x -= player.velx
+            if abs(player.rect.left-self.rect.right)<12:        #above but right side with larger tolerance for weird hitbox
+                player.x+= player.velx
+        
+        if abs(player.rect.bottom - self.rect.top) < self.tolerance and self.rect.left<player.rect.centerx and self.rect.right>player.rect.centerx: #if player is above obstacle and players center is between obstacles left and right side
+            player.jump = False #prevents from falling through
+            if player.rect.right < self.rect.centerx or player.rect.left > self.rect.centerx:   #make player fall off the side
+                player.vely = 0
+                player.jump = True
+       
 class Enemy:
     left = []
     for picIndex in range(1, 10):
@@ -214,6 +248,9 @@ class Enemy:
                 player.vely = 0
                 player.jump = True
 
+    def death(self): 
+        player.ammo += 2
+        player.points += 1
 
 
 
@@ -246,13 +283,15 @@ class Bullet:
             if obstaclec!=-1:
                 self.visible = False
             if enemyc!=-1:
+                enemies[enemyc].death() 
                 del enemies[enemyc]                          #deletes enemy instance that collided
                 self.visible = False
                 
 
 
 player = Hero(250, groundlevel)
-
+obstacles.append(Obstacle(450,groundlevel,50,50))
+ 
 
 
 while run: 
