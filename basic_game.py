@@ -18,11 +18,11 @@ bg = pygame.transform.scale(bg_img, (win_width, win_height))
 
 
 
-#Global variables for tracking stuff
-lastshot = 0 # for shooting cooldown
-lastspawn = 0 #for spawning enemies once in a while
-lastdmg = 0 #for not getting instakilled
-enemies = [] #support for multiple enemies
+#variables for tracking stuff
+lastshot = 0 
+lastspawn = 0 
+lastdmg = 0 
+enemies = []
 obstacles = [] 
 groundlevel = 390
 run = True
@@ -146,7 +146,7 @@ class Hero:
         winning = False
         deathtext = font2.render("GAME OVER", True, (255,0,0))
         win.blit(deathtext,(300,250))
-        
+
         
     def shoot(self):
         global lastshot
