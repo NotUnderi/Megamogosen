@@ -1,0 +1,271 @@
+import pygame
+import os
+import random
+
+
+# sets working directory to python file folder to fix errors when running game through vscode
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+pygame.init()
+
+#Backround and window
+win_width = 1000
+win_height = 500
+win = pygame.display.set_mode((win_width, win_height))
+bg_img = pygame.image.load("./assets/img/background.png")
+bg = pygame.transform.scale(bg_img, (win_width, win_height))
+
+
+
+
+#Global variables for tracking stuff
+lastshot = 0 # for shooting cooldown
+lastspawn = 0 #for spawning enemies once in a while
+lastdmg = 0 #for not getting instakilled
+enemies = [] #support for multiple enemies
+obstacles = [] 
+groundlevel = 390
+run = True
+winning = True
+
+
+pygame.display.set_caption(" ")
+
+bullet_img = pygame.transform.scale(pygame.image.load("./assets/img/new_bullet.png"), (10, 10))
+
+
+
+def draw_game():
+    win.fill((0,0,0))
+    win.blit(bg, (0, 0))
+    player.draw(win)
+    #pygame.draw.rect(win,(0,255,0),player.rect)
+    for e in enemies:
+        e.draw(win)
+        #pygame.draw.rect(win,(255,0,0),e.rect)            #comment draw.rects out, only for debugging hitboxes
+    for bullet in player.bullets:
+        bullet.draw_bullet()
+        #pygame.draw.rect(win,(255,0,0),bullet.rect)
+    for o in obstacles:
+        pygame.draw.rect(win,(255,255,255),o.rect)
+        o.draw(win)
+    pygame.time.delay(30)
+    pygame.display.update()
+
+
+class Hero:
+    left = []
+    #for picIndex in range(1, 5):
+    #    left.append(pygame.image.load("./assets/img/L" + str(picIndex)+ ".png"))
+    left.append(pygame.image.load("./assets/img/PL1.png"))
+    right = []
+    #for picIndex in range(1, 5):
+    #    right.append(pygame.image.load("./assets/img/R" + str(picIndex)+ ".png"))
+    right.append(pygame.image.load("./assets/img/PR1.png"))
+    def __init__(self, x, y):
+        self.rect = pygame.Rect(x,y,25,50)
+        self.x = x
+        self.y = y
+        self.velx = 10      
+        self.vely = 10     
+        self.face_right = True
+        self.face_left = False
+        self.stepIndex = 0
+        self.jump = False
+        self.tolerance = 16
+        self.bullets = []
+        self.health = 100
+
+
+    def move(self, userInput):
+        if userInput[pygame.K_d] and self.rect.x <= win_width - 55:
+            self.x += self.velx
+            self.face_right = True
+            self.face_left = False
+        elif userInput[pygame.K_a] and self.x >= 0:
+            self.x -= self.velx
+            self.face_right = False
+            self.face_left = True
+        else:
+            self.stepIndex = 0
+            
+        
+        if userInput[pygame.K_w] and self.jump is False:
+            self.jump = True
+        
+        if self.jump == True: 
+            self.y -= self.vely*1.5 
+            self.vely -= 1
+        if self.y>=groundlevel: #stops character from falling under the ground
+            self.jump = False
+            self.vely = 10
+        if self.jump == False : self.vely = 10  #reset velocity for next jump
+    
+        self.rect.x = self.x+20    #update rect pos
+        self.rect.y = self.y+15
+
+
+    def draw(self, win):
+        #if self.stepIndex >= 4:
+        #    self.stepIndex = 0
+        if self.face_left:
+            win.blit(self.left[0], (self.x+self.left[0].get_width()/2, self.y+self.left[0].get_height()/3))
+        #    self.stepIndex += 1
+        if self.face_right:
+            win.blit(self.right[0], (self.x+self.left[0].get_width()/2, self.y+self.left[0].get_height()/3))
+         #   self.stepIndex += 1
+        if self.y > groundlevel: self.y=groundlevel
+
+        if self.health <= 0:
+            self.death()
+        
+
+    def direction(self):
+        if self.face_right:
+            return 1
+        if self.face_left:
+            return -1
+
+
+    def death(self):
+        global winning 
+        pygame.mixer.music.pause()
+        winning = False
+        
+    def shoot(self):
+        global lastshot
+        cdamount = 200
+
+        if userInput[pygame.K_SPACE] and lastshot+cdamount < pygame.time.get_ticks():  
+            lastshot = pygame.time.get_ticks() 
+            bullet = Bullet(self.x, self.y+10, self.direction())
+            self.bullets.append(bullet)
+        for bullet in self.bullets:
+            bullet.move()
+
+class Enemy:
+    left = []
+    for picIndex in range(1, 10):
+        left.append(pygame.image.load("./assets/img/L" + str(picIndex)+ "E.png"))
+
+    right = []
+    for picIndex in range(1, 10):
+        right.append(pygame.image.load("./assets/img/R" + str(picIndex)+ "E.png"))
+    def __init__(self, x, y, end):
+        self.rect = pygame.Rect(x,y+15,25,50)
+        self.x = x
+        self.y = y
+        self.velx = 5      
+        self.vely = 10 
+        self.face_right = True
+        self.face_left = False
+        self.stepIndex = 0
+        self.end = end
+        self.path = [self.x,self.end]
+
+
+
+    def move(self):
+        global lastdmg
+        if abs(self.rect.centerx-player.rect.centerx) < 30 and abs(self.rect.top - player.rect.bottom)>25 and lastdmg+1000 < pygame.time.get_ticks(): 
+           lastdmg = pygame.time.get_ticks() 
+           player.health -= 10
+        if self.velx > 0:
+            if self.x + self.velx < self.end:
+                self.x += self.velx
+                self.face_right = True
+                self.face_left = False
+            else:
+                self.velx = self.velx*-1
+                self.face_right = False
+                self.face_left = True
+                self.stepIndex = 0
+        else:
+            if self.x - self.velx > self.path[0]:
+                self.x += self.velx
+            else:
+                self.velx = self.velx *-1
+                self.face_right = False
+                self.face_left = True
+                self.stepIndex = 0
+        self.rect.x = self.x+20
+        
+
+    def draw(self, win):
+        self.move()
+        if self.stepIndex >= 4:
+            self.stepIndex = 0
+        if self.face_left:
+            win.blit(self.left[self.stepIndex], (self.x, self.y))
+            self.stepIndex += 1
+        if self.face_right:
+            win.blit(self.right[self.stepIndex], (self.x, self.y))
+            self.stepIndex += 1
+        
+        if self.rect.colliderect(player.rect) and abs(self.rect.top - player.rect.top) < 20:    #check if player is colliding and on the same level
+            if abs(player.rect.right - self.rect.left) < 7:     #check which side is closer to determine direction to push player
+                player.x -= player.velx
+            if abs(player.rect.left-self.rect.right)<7:
+                player.x+= player.velx
+
+        if abs(player.rect.bottom - self.rect.top) < 5 and self.rect.left-10<player.rect.centerx and self.rect.right+10>player.rect.centerx: #if player is above obstacle and players center is between obstacles left and right side
+            player.jump = False #prevents from falling through
+            if player.rect.right < self.rect.centerx or player.rect.left > self.rect.centerx:   #make player fall off the side
+                player.vely = 0
+                player.jump = True
+
+
+
+
+
+
+class Bullet:
+    def __init__(self, x, y, direction):
+        self.x = x + 15
+        self.y = y + 25
+        self.direction = direction
+        self.rect = pygame.Rect(x+15,y+25,10,10)
+        self.visible = True
+        
+
+
+    def draw_bullet(self):
+        if self.visible:
+            win.blit(bullet_img, (self.x, self.y))
+
+    def move(self):
+        self.rect.x = self.x
+        obstaclec = self.rect.collidelist(obstacles)
+        enemyc = self.rect.collidelist(enemies)
+        if self.visible:
+            if self.direction == 1:
+                self.x += 35        #bullet speed
+                
+            if self.direction == -1:
+                self.x -= 35   
+            if obstaclec!=-1:
+                self.visible = False
+            if enemyc!=-1:
+                del enemies[enemyc]                          #deletes enemy instance that collided
+                self.visible = False
+                
+
+
+player = Hero(250, groundlevel)
+
+
+
+while run: 
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+    if winning:
+        if lastspawn+2500 < pygame.time.get_ticks():                   #for spawning enemies every 1.5 second
+            lastspawn = pygame.time.get_ticks()
+            enemies.append(Enemy(random.randint(0,500),groundlevel,random.randint(200,900)))
+        userInput = pygame.key.get_pressed()
+        player.shoot()
+        player.move(userInput)
+        draw_game()
+

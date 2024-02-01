@@ -30,24 +30,10 @@ obstacles = []
 groundlevel = 390
 run = True
 winning = True
-#Initializing sounds
-pygame.mixer.init()
-pygame.mixer.music.load('./assets/audio/Retrogame_music_1.ogg')
-pygame.mixer.music.set_volume(0.4)
-pygame.mixer.music.play()
 
-death_sound = pygame.mixer.Sound("./assets/audio/UOHu.ogg")
-olkapaa = pygame.mixer.Sound("./assets/audio/Ai_vittu_mun_olkapaa.ogg")
-shoot = pygame.mixer.Sound("./assets/audio/Ampuskelu.ogg")
-iced = pygame.mixer.Sound("./assets/audio/Jaassssa.ogg")
-player_death = pygame.mixer.Sound("./assets/audio/Kertaakaa.ogg")
-point = pygame.mixer.Sound("./assets/audio/Pisteaani.ogg")
 
-enemyDeathSounds = [olkapaa,death_sound,iced]
+pygame.display.set_caption(" ")
 
-pygame.display.set_caption("Megamogosen")
-
-standing = pygame.image.load("./assets/img/standing.png") #not used ?
 bullet_img = pygame.transform.scale(pygame.image.load("./assets/img/new_bullet.png"), (10, 10))
 
 
@@ -156,7 +142,6 @@ class Hero:
     def death(self):
         global winning 
         pygame.mixer.music.pause()
-        pygame.mixer.Sound.play(player_death)
         winning = False
         deathtext = font2.render("GAME OVER", True, (255,0,0))
         win.blit(deathtext,(300,250))
@@ -165,9 +150,8 @@ class Hero:
         global lastshot
         cdamount = 200
 
-        if userInput[pygame.K_SPACE] and lastshot+cdamount < pygame.time.get_ticks() and self.ammo > 0:  #shoots only if cdamount (milliseconds) has passed
-            pygame.mixer.Sound.play(shoot)
-            lastshot = pygame.time.get_ticks() #update time
+        if userInput[pygame.K_SPACE] and lastshot+cdamount < pygame.time.get_ticks() and self.ammo > 0:  
+            lastshot = pygame.time.get_ticks() 
             self.ammo -= 1
             bullet = Bullet(self.x, self.y+10, self.direction())
             self.bullets.append(bullet)
@@ -271,10 +255,8 @@ class Enemy:
         
 
     def death(self): 
-        pygame.mixer.Sound.play(random.choice(enemyDeathSounds))
         player.ammo += 2
         player.points += 1
-        if player.points%10 == 0: pygame.mixer.Sound.play(point)
 
 
 
