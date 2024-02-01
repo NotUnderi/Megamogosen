@@ -139,9 +139,14 @@ class Hero:
             return -1
 
 
+
     def death(self):
         global winning 
+        pygame.mixer.music.pause()
         winning = False
+        deathtext = font2.render("GAME OVER", True, (255,0,0))
+        win.blit(deathtext,(300,250))
+        
         
     def shoot(self):
         global lastshot
